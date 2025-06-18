@@ -193,7 +193,9 @@ def main(args):
     np.random.seed(1234)
     X_train = geom.random_points(args.num_train)
     np.random.seed(3456)
+    X_train[:, 15] = 0
     X_test = geom.random_points(args.num_test)
+    X_test[:, 15] = 0
     data = dae_data(X_train, X_test, args, device=device, func=power_net_dae)
 
     # start the supervisor
