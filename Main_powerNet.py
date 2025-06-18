@@ -178,6 +178,12 @@ def main(args):
     lower_bounds = np.minimum(lower, upper)
     upper_bounds = np.maximum(lower, upper)
 
+    min_delta = 1e-6
+    for i in range(len(lower_bounds)):
+        if lower_bounds[i] == upper_bounds[i]:
+            lower_bounds[i] -= min_delta
+            upper_bounds[i] += min_delta
+
     # 6) Creo l'iper‐cubo in DeepXDE
     geom = dde.geometry.Hypercube(
         lower_bounds.tolist(),
