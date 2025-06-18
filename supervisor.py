@@ -135,7 +135,7 @@ class supervisor(object):
                 loss.backward()
                 self.optimizer.step()
                 # detecting gradient explosion
-                if loss.item() > 1e10:
+                if loss.item() > 1e25:
                     print("gradient explosion detected")
                     self.stop_training = True
                 # saving current batch loss

@@ -9,7 +9,7 @@ from matplotlib.pyplot import plot
 
 from config import args
 from utils import dotdict
-from DAEnn import three_bus_PN
+#from DAEnn import three_bus_PN
 from DAE import dae_data
 from supervisor import supervisor
 import events
@@ -53,7 +53,7 @@ def main(args):
     # construct the neural nets
     dynamic = dotdict()
     dynamic.num_IRK_stages = args.num_IRK_stages
-    dynamic.state_dim = args.state_dim
+    dynamic.state_dim = args.state_dim + args.input_state_dim
     def dyn_input_feature_layer(x):
         return torch.cat((x,torch.cos(np.pi * x), torch.sin(np.pi * x), torch.cos(2 * np.pi * x), torch.sin(2 * np.pi * x)), dim=-1)    
     dynamic.activation = args.dyn_activation
@@ -171,8 +171,8 @@ def main(args):
     centers = np.concatenate([centers1, centers2])  # shape (17,)
 
     # 4) Calcolo lower = 0.9 * centers e upper = 1.1 * centers
-    lower = 0.9 * centers
-    upper = 1.1 * centers
+    lower = 0.99 * centers
+    upper = 1.09 * centers
 
     # 5) Assicuro che lower_i ≤ upper_i per ogni i
     lower_bounds = np.minimum(lower, upper)
@@ -190,12 +190,18 @@ def main(args):
         upper_bounds.tolist()
     )
 
+    '''
     np.random.seed(1234)
     X_train = geom.random_points(args.num_train)
     np.random.seed(3456)
     X_train[:, 15] = 0
     X_test = geom.random_points(args.num_test)
     X_test[:, 15] = 0
+    '''
+
+    X_train = np.tile(centers, (args.num_train, 1))
+    X_test = np.tile(centers, (args.num_test, 1))
+
     data = dae_data(X_train, X_test, args, device=device, func=power_net_dae)
 
     # start the supervisor

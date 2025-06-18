@@ -16,10 +16,17 @@ def power_net_dae(model, y_n, h, IRK_weights):
     # pinn
     yn = y_n.clone()
     
-    _, data_mat, _ = load_data("data/t_p.mat","data/U.mat", "data/Y_p.mat")
-    data_row = data_mat.to(device)
-    Pref, Qref, Vg_d, Vg_q, omega_g = [data_row[:, i] for i in range(5)]
-    
+    #_, data_mat, _ = load_data("data/t_p.mat","data/U.mat", "data/Y_p.mat")
+    #data_row = data_mat.to(device)
+    #Pref, Qref, Vg_d, Vg_q, omega_g = [data_row[:, i] for i in range(5)]
+
+    Pref, Qref, Vg_d, Vg_q, omega_g = yn[:, 12], yn[:, 13], yn[:, 14], yn[:, 15], yn[:, 16]
+    Pref = Pref.unsqueeze(1)
+    Qref = Qref.unsqueeze(1)
+    Vg_d = Vg_d.unsqueeze(1)
+    Vg_q = Vg_q.unsqueeze(1)
+    omega_g = omega_g.unsqueeze(1)
+
     # TO DO: fourier and exponential features    
     Is_d, Is_q, Ic_d, Ic_q, vCf_d, vCf_q, xcc_d, xcc_q, xpll, theta_r, vc_d, vc_q, Vs_d, Vs_q, Vc_d, Vc_q, vs_d, vs_q, vc_d_ref, vc_q_ref, ic_d, ic_q, omega_pll = model(yn)
 
@@ -72,8 +79,6 @@ def power_net_dae(model, y_n, h, IRK_weights):
     zeta_ic_q = ic_q[...,:-1].to(device)
     zeta_omega_pll = omega_pll[...,:-1].to(device)
     
-   
-   
     # compute dynamic residuals
     F0 = T * (-Rg/Lg * xi_Is_d + omega_nom * xi_Is_q + (zeta_Vs_d - Vg_d)/Lg)
     F1 = T * (-omega_nom *  xi_Is_d - Rg/Lg *  xi_Is_q + (zeta_Vs_q - Vg_q)/Lg)
@@ -110,6 +115,9 @@ def power_net_dae(model, y_n, h, IRK_weights):
     # compute algebrtaic residuals
     G0 = -Vs_d + (Ic_d - Is_d)*Rcf + vCf_d
     G1 = -Vs_q + (Ic_q - Is_q)*Rcf + vCf_q
+    iref_d = 2 / 3 * Pref / torch.clamp(vs_d, 1e-6)
+    iref_q = -2/3 * Qref / torch.clamp(vs_d, 1e-6)
+
     G2 = -vc_d_ref + vs_d + xcc_d + Kpi*(iref_d - ic_d) - Lf*omega_pll*ic_q
     G3 = -vc_q_ref + vs_q + xcc_q + Kpi*(iref_q - ic_q) + Lf*omega_pll*ic_d
     G4 = -omega_pll + omega_nom + Kp_pll*vs_q + xpll
