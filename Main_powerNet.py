@@ -17,7 +17,6 @@ from plots import plot_loss_history, plot_three_bus, plot_regression, plot_L2rel
 from metrics import l2_relative_error
 from modello import power_net_dae
 
-from DAEnn_n import three_bus_PN
 '''
 def scipy_integrate(func, X0, args, IRK_times, N=0):
     """

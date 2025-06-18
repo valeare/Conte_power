@@ -3,7 +3,7 @@ import torch.nn as nn
 from maps import fnn, attention, Conv1D
 from config import args
 
-class  (nn.Module):
+class  three_bus_PN(nn.Module):
     def __init__(
         self, 
         dynamic,
