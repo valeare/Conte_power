@@ -151,6 +151,39 @@ def main(args):
     
     # get data for the problem
     geom = dde.geometry.Hypercube([-.5, -.5, -.5, -.5],[.5, .5, .5, .5])
+
+
+    # prendo i valori dal file .m di fra e considero un intervallo +-10%
+
+    # 1) Definisco i 12 centri originali × 1000
+    centers1 = np.array([
+        3.4174, -0.8794, 3.4134, -0.5675,
+        0.5434, 0.0070, 0.0059, -0.0011,
+        -0.0002, 0.0000, 0.5580, 0.0432
+    ]) * 1e3
+
+    # 2) Definisco gli altri 5 centri × 1e6
+    centers2 = np.array([
+        2.7688, 0.5387, 0.0005, 0.0, 0.0003
+    ]) * 1e6
+
+    # 3) Unisco i due blocchi in un unico vettore di 17 centri
+    centers = np.concatenate([centers1, centers2])  # shape (17,)
+
+    # 4) Calcolo lower = 0.9 * centers e upper = 1.1 * centers
+    lower = 0.9 * centers
+    upper = 1.1 * centers
+
+    # 5) Assicuro che lower_i ≤ upper_i per ogni i
+    lower_bounds = np.minimum(lower, upper)
+    upper_bounds = np.maximum(lower, upper)
+
+    # 6) Creo l'iper‐cubo in DeepXDE
+    geom = dde.geometry.Hypercube(
+        lower_bounds.tolist(),
+        upper_bounds.tolist()
+    )
+
     np.random.seed(1234)
     X_train = geom.random_points(args.num_train)
     np.random.seed(3456)
