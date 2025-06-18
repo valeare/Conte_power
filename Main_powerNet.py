@@ -150,7 +150,7 @@ def main(args):
     '''
     
     # get data for the problem
-    geom = dde.geometry.Hypercube([-.5, -.5, -.5, -.5],[.5, .5, .5, .5])
+    # geom = dde.geometry.Hypercube([-.5, -.5, -.5, -.5],[.5, .5, .5, .5])
 
 
     # prendo i valori dal file .m di fra e considero un intervallo +-10%
